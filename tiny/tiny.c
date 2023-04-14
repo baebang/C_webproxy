@@ -62,6 +62,11 @@ void doit(int fd) {
       }
       serve_dynamic(fd, filename, cgiargs);
   }
+  /*맞습니다. 클라이언트에서 서버로 전송하는 것은 맞지만, 
+  CGI 스크립트를 통해 전달되는 데이터는 GET 방식에서도 가능합니다.
+  GET 방식에서는 클라이언트에서 서버로 전송하는 데이터를 URL의 일부분으로 전송합니다. 
+  이 때 전송되는 데이터는 주로 검색어나 조회 조건 등과 같은 작은 양의 데이터입니다. 
+  따라서 CGI 스크립트에서 이러한 데이터를 파싱하고 처리할 수 있습니다.*/
 }
 
 void read_requesthdrs(rio_t *rp) {
@@ -77,13 +82,21 @@ void read_requesthdrs(rio_t *rp) {
 
 int parse_uri(char *uri, char *filename, char *cgiargs) {
     char *ptr;
+
+
     if (!strstr(uri, "cgi-bin")) {  /* Static content */
         strcpy(cgiargs, "");
         strcpy(filename, ".");
         strcat(filename, uri);
+        printf("======? %s\n", filename);
+ 
         if (uri[strlen(uri)-1] == '/') {
             strcat(filename, "home.html");
         }
+        else if (strcmp(uri, "/mp4") == 0){
+            strcpy(filename, "newjins.mp4");
+        }
+
         return 1;
     }
     else {  /* Dynamic content */
@@ -136,6 +149,9 @@ void get_filetype(char *filename, char *filetype) {
         strcpy(filetype, "image/png");
     else if (strstr(filename, ".jpg"))
         strcpy(filetype, "image/jpeg");
+    else if (strstr(filename, ".mp4")){
+        strcpy(filetype, "video/mp4");
+    }
     else
         strcpy(filetype, "text/plain");
 }
