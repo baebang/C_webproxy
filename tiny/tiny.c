@@ -94,7 +94,10 @@ int parse_uri(char *uri, char *filename, char *cgiargs) {
             strcat(filename, "home.html");
         }
         else if (strcmp(uri, "/mp4") == 0){
-            strcpy(filename, "newjins.mp4");
+            strcpy(filename, "sample.mp4");
+        }
+        else if (strcmp(uri, "/gif") == 0){
+            strcpy(filename, "godzilla.gif");
         }
 
         return 1;
@@ -125,6 +128,7 @@ void serve_static(int fd, char *filename, int filesize) {
     sprintf(buf, "%sConnection: close\r\n", buf);
     sprintf(buf, "%sContent-length: %d\r\n", buf, filesize);
     sprintf(buf, "%sContent-type: %s\r\n\r\n", buf, filetype);
+    printf("=======strlen(buf)======%d",buf);
     Rio_writen(fd, buf, strlen(buf));
     printf("Response headers:\n");
     printf("%s", buf);
