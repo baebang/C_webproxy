@@ -37,7 +37,7 @@ void doit(int fd) {
     return; 
   }
   
-  read_requesthdrs(&rio);
+  read_requesthdrs(&rio); //웹 프록시에서 사용할 함수
   
   /* Parse URI from GET request */
   is_static = parse_uri(uri, filename, cgiargs);
@@ -83,27 +83,25 @@ void read_requesthdrs(rio_t *rp) {
 int parse_uri(char *uri, char *filename, char *cgiargs) {
     char *ptr;
 
-
     if (!strstr(uri, "cgi-bin")) {  /* Static content */
+        
         strcpy(cgiargs, "");
         strcpy(filename, ".");
         strcat(filename, uri);
         printf("======? %s\n", filename);
  
         if (uri[strlen(uri)-1] == '/') {
-            strcat(filename, "home.html");
+            strcat(filename, "adder.html");
         }
         else if (strcmp(uri, "/mp4") == 0){
             strcpy(filename, "sample.mp4");
-        }
-        else if (strcmp(uri, "/gif") == 0){
-            strcpy(filename, "godzilla.gif");
         }
 
         return 1;
     }
     else {  /* Dynamic content */
         ptr = index(uri, '?');
+        //num1=12&num2=3
         if (ptr) {
             strcpy(cgiargs, ptr+1);
             *ptr = '\0';
@@ -114,8 +112,10 @@ int parse_uri(char *uri, char *filename, char *cgiargs) {
         strcpy(filename, ".");
         strcat(filename, uri);
         return 0;
+
     }
 }
+
 
 void serve_static(int fd, char *filename, int filesize) {
     int srcfd;
@@ -128,7 +128,6 @@ void serve_static(int fd, char *filename, int filesize) {
     sprintf(buf, "%sConnection: close\r\n", buf);
     sprintf(buf, "%sContent-length: %d\r\n", buf, filesize);
     sprintf(buf, "%sContent-type: %s\r\n\r\n", buf, filetype);
-    printf("=======strlen(buf)======%d",buf);
     Rio_writen(fd, buf, strlen(buf));
     printf("Response headers:\n");
     printf("%s", buf);
