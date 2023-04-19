@@ -13,12 +13,14 @@ static const char *user_agent_hdr =
 
 void parse_uri(char *uri, char *host, char* port, char *path);
 void doit(int fd) ;
+void *thread(void *vargp);
 
 int main(int argc, char **argv) {
-  int listenfd, connfd;
+  int listenfd, *connfd;
   char hostname[MAXLINE], port[MAXLINE];
   socklen_t clientlen;
   struct sockaddr_storage clientaddr;
+  pthread_t tid;
 
   /* Check command line args */
   if (argc != 2) {
@@ -28,15 +30,27 @@ int main(int argc, char **argv) {
 
   listenfd = Open_listenfd(argv[1]);
   while (1) {
-    clientlen = sizeof(clientaddr);
-    connfd = Accept(listenfd, (SA *)&clientaddr,
+    clientlen = sizeof(struct sockaddr_storage);
+    connfd = Malloc(sizeof(int));
+    *connfd = Accept(listenfd, (SA *)&clientaddr,
                     &clientlen);  // line:netp:tiny:accept
-    Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE,
-                0);
+    // Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE,
+    //             0);
+
     printf("Accepted connection from (%s, %s)\n", hostname, port);
-    doit(connfd);   // line:netp:tiny:doit
-    Close(connfd);  // line:netp:tiny:close
+    Pthread_create(&tid, NULL, thread, connfd);
+
   }
+}
+
+void *thread(void *vargp){
+  int connfd = *((int *) vargp);
+  Pthread_detach(Pthread_self());
+  Free(vargp);
+  doit(connfd);   // line:netp:tiny:doit
+  Close(connfd);  // line:netp:tiny:close
+  return NULL;
+
 }
 
 void doit(int fd) {
