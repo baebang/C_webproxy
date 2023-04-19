@@ -36,8 +36,6 @@ int main(int argc, char **argv) {
                     &clientlen);  // line:netp:tiny:accept
     // Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE,
     //             0);
-
-    printf("Accepted connection from (%s, %s)\n", hostname, port);
     Pthread_create(&tid, NULL, thread, connfd);
 
   }
