@@ -14,6 +14,7 @@ static const char *user_agent_hdr =
 void parse_uri(char *uri, char *host, char* port, char *path);
 void doit(int fd) ;
 void *thread(void *vargp);
+void caching(void *caching);
 
 int main(int argc, char **argv) {
   int listenfd, *connfd;
